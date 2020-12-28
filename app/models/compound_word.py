@@ -1,16 +1,17 @@
-from typing import Optional
+from typing import Optional, List
 
 from app.models.rwmodel import RWModel
 
 
 class CompoundWordBase(RWModel):
-    kanji: Optional[str] = None
+    compound_word: Optional[str] = None
     hiragana: Optional[str] = None
     translation: Optional[str] = None
+    related_kanji: Optional[List[str]]
 
 
 class CompoundWordCreate(CompoundWordBase):
-    kanji: str
+    compound_word: str
     hiragana: str
     translation: str
 
@@ -20,7 +21,7 @@ class CompoundWordUpdate(CompoundWordBase):
 
 
 class CompoundWordInDbBase(CompoundWordBase):
-    kanji: str
+    compound_word: str
     hiragana: str
     translation: str
 
