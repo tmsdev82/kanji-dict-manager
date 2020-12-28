@@ -3,6 +3,10 @@ from typing import Optional, List
 from app.models.rwmodel import RWModel
 
 
+class CompoundWordFilterParams(RWModel):
+    related_kanji: List[str] = []
+
+
 class CompoundWordBase(RWModel):
     compound_word: Optional[str] = None
     hiragana: Optional[str] = None
