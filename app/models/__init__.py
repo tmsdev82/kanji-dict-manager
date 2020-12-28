@@ -1,0 +1,1 @@
+from app.models.kanji import KanjiCreate, KanjiInDb, KanjiUpdate
