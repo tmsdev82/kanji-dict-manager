@@ -50,15 +50,26 @@ async def get_compound_word_doc_by_compound_word(
         return models.CompoundWordInDb(**compound_word_doc)
 
 
-async def get_all_compound_word(connection: AsyncIOMotorClient) -> List[models.CompoundWordInDb]:
+async def get_compound_words(
+    connection: AsyncIOMotorClient, filters: models.CompoundWordFilterParams
+) -> List[models.CompoundWordInDb]:
     """
     Get all compound_word documents in the database.
 
     :param connection: Async database client.
+    :param filters: CompoundWordFilterParams instance containing values to filter on. If no filter values
+    are set, then all compound words will be returned.
     :return: Returns all compound_word documents as a list.
     """
     logger.debug(">>>>")
-    results = connection[settings.MONGO_DB][settings.MONGO_COMPOUND_WORD_COLLECTION].find()
+    query = {}
+    if filters.related_kanji:
+        query["related_kanji"] = {"$in": filters.related_kanji}
+
+    if query:
+        results = connection[settings.MONGO_DB][settings.MONGO_COMPOUND_WORD_COLLECTION].find(query)
+    else:
+        results = connection[settings.MONGO_DB][settings.MONGO_COMPOUND_WORD_COLLECTION].find()
 
     compound_word_results = []
     async for result in results:
