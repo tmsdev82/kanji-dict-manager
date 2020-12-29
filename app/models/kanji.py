@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional, List
 
-from app.models.rwmodel import RWModel
+from app.models.rwmodel import RWModel, ObjectIdStr
 from app.models.compound_word import CompoundWordBase, CompoundWordInDb
 
 
@@ -40,6 +40,7 @@ class KanjiUpdate(KanjiBase):
 
 
 class KanjiInDbBase(KanjiBase):
+    doc_id: Optional[ObjectIdStr] = None
     kanji: str
 
 

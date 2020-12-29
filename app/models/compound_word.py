@@ -1,6 +1,6 @@
 from typing import Optional, List
 
-from app.models.rwmodel import RWModel
+from app.models.rwmodel import RWModel, ObjectIdStr
 
 
 class CompoundWordFilterParams(RWModel):
@@ -25,6 +25,7 @@ class CompoundWordUpdate(CompoundWordBase):
 
 
 class CompoundWordInDbBase(CompoundWordBase):
+    doc_id: Optional[ObjectIdStr] = None
     compound_word: str
     hiragana: str
     translation: str

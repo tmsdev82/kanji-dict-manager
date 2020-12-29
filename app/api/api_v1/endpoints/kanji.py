@@ -69,6 +69,7 @@ async def delete_kanji(*, db: AsyncIOMotorClient = Depends(get_database), kanji:
     kanji_by_kanji = await kanji_service.get_kanji_doc_by_kanji(db, kanji)
 
     if not kanji_by_kanji:
+        logger.info("Kanji not found.")
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=f"Kanji '{kanji}' not found.")
 
     await kanji_service.delete_kanji_doc_by_kanji(db, kanji)
