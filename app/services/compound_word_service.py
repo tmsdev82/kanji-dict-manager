@@ -25,9 +25,13 @@ async def create_compound_word(
     logger.info(f"Creating compound_word doc: {json.dumps(compound_word_doc, indent=2, ensure_ascii=False)}")
     compound_word_doc["updated_at"] = datetime.utcnow()
 
-    await connection[settings.MONGO_DB][settings.MONGO_COMPOUND_WORD_COLLECTION].insert_one(compound_word_doc)
+    result = await connection[settings.MONGO_DB][settings.MONGO_COMPOUND_WORD_COLLECTION].insert_one(
+        compound_word_doc
+    )
+    compound_word_in_db = models.CompoundWordInDb(**compound_word_doc)
+    compound_word_in_db.doc_id = result.inserted_id
 
-    return models.CompoundWordInDb(**compound_word_doc)
+    return compound_word_in_db
 
 
 async def get_compound_word_doc_by_compound_word(
@@ -47,7 +51,10 @@ async def get_compound_word_doc_by_compound_word(
         {"compound_word": compound_word}
     )
     if compound_word_doc:
-        return models.CompoundWordInDb(**compound_word_doc)
+        compound_word_in_db = models.CompoundWordInDb(**compound_word_doc)
+        compound_word_in_db.doc_id = compound_word_doc.get("_id")
+
+        return compound_word_in_db
 
 
 async def get_compound_words(
@@ -73,7 +80,11 @@ async def get_compound_words(
 
     compound_word_results = []
     async for result in results:
-        compound_word_results.append(models.CompoundWordInDb(**result))
+        if "doc_id" in result:
+            del result["doc_id"]
+        compound_word_in_db = models.CompoundWordInDb(**result)
+        compound_word_in_db.doc_id = result.get("_id")
+        compound_word_results.append(compound_word_in_db)
 
     logger.info(f"Retrieved {len(compound_word_results)} compound_word.")
     return compound_word_results
@@ -124,6 +135,7 @@ async def update_compound_word_doc_by_compound_word(
         db_compound_word.related_kanji = compoundWordUpdate.related_kanji
 
     updated_doc = db_compound_word.dict()
+    updated_doc["doc_id"] = str(updated_doc["doc_id"])
     logger.info(
         f"Updating compound_word {compound_word} with: {json.dumps(updated_doc, indent=2, ensure_ascii=False)}"
     )

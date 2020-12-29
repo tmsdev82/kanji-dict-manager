@@ -23,9 +23,13 @@ async def create_kanji(connection: AsyncIOMotorClient, kanji: models.KanjiCreate
     logger.info(f"Creating kanji doc: {json.dumps(kanji_doc, indent=2, ensure_ascii=False)}")
     kanji_doc["updated_at"] = datetime.utcnow()
 
-    await connection[settings.MONGO_DB][settings.MONGO_KANJI_COLLECTION].insert_one(kanji_doc)
+    result = await connection[settings.MONGO_DB][settings.MONGO_KANJI_COLLECTION].insert_one(kanji_doc)
+    logger.debug(f"Inserted Id: {result.inserted_id}")
 
-    return models.KanjiInDb(**kanji_doc)
+    kanji_in_db = models.KanjiInDb(**kanji_doc)
+    kanji_in_db.doc_id = result.inserted_id
+
+    return kanji_in_db
 
 
 async def get_kanji_doc_by_kanji(connection: AsyncIOMotorClient, kanji: str) -> models.KanjiInDb:
@@ -43,7 +47,9 @@ async def get_kanji_doc_by_kanji(connection: AsyncIOMotorClient, kanji: str) -> 
         {"kanji": kanji}
     )
     if kanji_doc:
-        return models.KanjiInDb(**kanji_doc)
+        kanji_in_db = models.KanjiInDb(**kanji_doc)
+        kanji_in_db.doc_id = kanji_doc.get("_id")
+        return kanji_in_db
 
 
 async def get_all_kanji(connection: AsyncIOMotorClient) -> List[models.KanjiInDb]:
@@ -58,7 +64,11 @@ async def get_all_kanji(connection: AsyncIOMotorClient) -> List[models.KanjiInDb
 
     kanji_results = []
     async for result in results:
-        kanji_results.append(models.KanjiInDb(**result))
+        if "doc_id" in result:
+            del result["doc_id"]
+        kanji_in_db = models.KanjiInDb(**result)
+        kanji_in_db.doc_id = result.get("_id")
+        kanji_results.append(kanji_in_db)
 
     logger.info(f"Retrieved {len(kanji_results)} kanji.")
     return kanji_results
@@ -104,11 +114,11 @@ async def update_kanji_doc_by_kanji(
     if kanjiUpdate.strokes:
         db_kanji.strokes = kanjiUpdate.strokes
 
-    if kanjiUpdate.jlpt:
-        db_kanji.jlpt = kanjiUpdate.jlpt
+    if kanjiUpdate.jlpt_level:
+        db_kanji.jlpt_level = kanjiUpdate.jlpt_level
 
-    if kanjiUpdate.freq:
-        db_kanji.freq = kanjiUpdate.freq
+    if kanjiUpdate.frequency_rank:
+        db_kanji.frequency_rank = kanjiUpdate.frequency_rank
 
     if kanjiUpdate.onyomi:
         db_kanji.onyomi = kanjiUpdate.onyomi
@@ -120,6 +130,7 @@ async def update_kanji_doc_by_kanji(
         db_kanji.meaning = kanjiUpdate.meaning
 
     updated_doc = db_kanji.dict()
+    updated_doc["doc_id"] = str(updated_doc["doc_id"])
     logger.info(f"Updating kanji {kanji} with: {json.dumps(updated_doc, indent=2, ensure_ascii=False)}")
 
     await connection[settings.MONGO_DB][settings.MONGO_KANJI_COLLECTION].replace_one(
