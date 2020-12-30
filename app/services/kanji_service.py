@@ -1,6 +1,7 @@
 import json
 from typing import List
 from datetime import datetime
+from bson import ObjectId
 
 
 from loguru import logger
@@ -32,12 +33,34 @@ async def create_kanji(connection: AsyncIOMotorClient, kanji: models.KanjiCreate
     return kanji_in_db
 
 
+async def get_kanji_doc_by_id(connection: AsyncIOMotorClient, doc_id: str) -> models.KanjiInDb:
+    """
+    Retrieve a single kanji document.
+
+    :param connection: Async database client.
+    :param doc_id: The unique doc_id to use to retrieve the kanji document from the database.
+    :return: Returns kanji document as it is in the database.
+    """
+    logger.debug(">>>>")
+    logger.info(f"Retrieving kanji data for {doc_id}...")
+
+    kanji_doc = await connection[settings.MONGO_DB][settings.MONGO_KANJI_COLLECTION].find_one(
+        {"_id": ObjectId(doc_id)}
+    )
+    if kanji_doc:
+        if "doc_id" in kanji_doc:
+            del kanji_doc["doc_id"]
+        kanji_in_db = models.KanjiInDb(**kanji_doc)
+        kanji_in_db.doc_id = kanji_doc.get("_id")
+        return kanji_in_db
+
+
 async def get_kanji_doc_by_kanji(connection: AsyncIOMotorClient, kanji: str) -> models.KanjiInDb:
     """
     Retrieve a single kanji document.
 
     :param connection: Async database client.
-    :param kanji: The unique kanji to use to retrieve the kanji document from the database.
+    :param kanji: The kanji to use to retrieve the kanji document from the database.
     :return: Returns kanji document as it is in the database.
     """
     logger.debug(">>>>")
@@ -47,6 +70,8 @@ async def get_kanji_doc_by_kanji(connection: AsyncIOMotorClient, kanji: str) -> 
         {"kanji": kanji}
     )
     if kanji_doc:
+        if "doc_id" in kanji_doc:
+            del kanji_doc["doc_id"]
         kanji_in_db = models.KanjiInDb(**kanji_doc)
         kanji_in_db.doc_id = kanji_doc.get("_id")
         return kanji_in_db
@@ -74,33 +99,33 @@ async def get_all_kanji(connection: AsyncIOMotorClient) -> List[models.KanjiInDb
     return kanji_results
 
 
-async def delete_kanji_doc_by_kanji(connection: AsyncIOMotorClient, kanji: str) -> None:
+async def delete_kanji_doc_by_id(connection: AsyncIOMotorClient, doc_id: str) -> None:
     """
-    Delete kanji documents by kanji. All matching documents will be deleted.
+    Delete kanji documents by doc_id. The matching document will be deleted.
 
     :param connection: Database connection object.
-    :param kanji: The unique kanji to delete documents by.
+    :param doc_id: The unique doc_id to delete documents by.
     """
 
-    logger.info(f"Deleting kanji '{kanji}'...")
-    await connection[settings.MONGO_DB][settings.MONGO_KANJI_COLLECTION].delete_many({"kanji": kanji})
-    logger.info(f"Deleted kanji '{kanji}'.")
+    logger.info(f"Deleting kanji '{doc_id}'...")
+    await connection[settings.MONGO_DB][settings.MONGO_KANJI_COLLECTION].delete_one({"_id": ObjectId(doc_id)})
+    logger.info(f"Deleted kanji '{doc_id}'.")
 
 
-async def update_kanji_doc_by_kanji(
-    connection: AsyncIOMotorClient, kanji: str, kanjiUpdate: models.KanjiUpdate
+async def update_kanji_doc_by_id(
+    connection: AsyncIOMotorClient, doc_id: str, kanjiUpdate: models.KanjiUpdate
 ) -> models.KanjiInDb:
     """
-    Update a single kanji by kanji. Supports partial update. Only attributes set on the KanjiUpdate object
+    Update a single kanji by doc_id. Supports partial update. Only attributes set on the KanjiUpdate object
     will be updated.
 
     :param connection: Async database client.
-    :param kanji: The unique kanji to update a document by.
+    :param doc_id: The unique doc_id to update a document by.
     :param kanjiUpdate:  KanjiUpdate instance with updated values.
     :return: Returns kanji document as it is in the database.
     """
     logger.debug(">>>>")
-    db_kanji = await get_kanji_doc_by_kanji(connection, kanji)
+    db_kanji = await get_kanji_doc_by_id(connection, doc_id)
 
     if kanjiUpdate.kanji:
         db_kanji.kanji = kanjiUpdate.kanji
@@ -131,10 +156,10 @@ async def update_kanji_doc_by_kanji(
 
     updated_doc = db_kanji.dict()
     updated_doc["doc_id"] = str(updated_doc["doc_id"])
-    logger.info(f"Updating kanji {kanji} with: {json.dumps(updated_doc, indent=2, ensure_ascii=False)}")
+    logger.info(f"Updating kanji {doc_id} with: {json.dumps(updated_doc, indent=2, ensure_ascii=False)}")
 
     await connection[settings.MONGO_DB][settings.MONGO_KANJI_COLLECTION].replace_one(
-        {"kanji": kanji}, updated_doc
+        {"_id": ObjectId(doc_id)}, updated_doc
     )
 
     return db_kanji

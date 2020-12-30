@@ -35,14 +35,12 @@ async def get_compound_word_items(
     return compound_words
 
 
-@router.get("/{compound_word}", response_model=models.CompoundWordInDb)
-async def get_compound_word(*, db: AsyncIOMotorClient = Depends(get_database), compound_word: str) -> Any:
+@router.get("/{doc_id}", response_model=models.CompoundWordInDb)
+async def get_compound_word_by_id(*, db: AsyncIOMotorClient = Depends(get_database), doc_id: str) -> Any:
     """
     Get a single compound_word document using the compound_word as a lookup.
     """
-    compound_word_result = await compound_word_service.get_compound_word_doc_by_compound_word(
-        db, compound_word
-    )
+    compound_word_result = await compound_word_service.get_compound_word_doc_by_id(db, doc_id)
 
     if not compound_word_result:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="Compound word not found")
@@ -73,45 +71,37 @@ async def create_new_compound_word(
     return db_compound_word
 
 
-@router.delete("/{compound_word}", status_code=HTTP_204_NO_CONTENT)
-async def delete_compound_word(*, db: AsyncIOMotorClient = Depends(get_database), compound_word: str):
+@router.delete("/{doc_id}", status_code=HTTP_204_NO_CONTENT)
+async def delete_compound_word_by_id(*, db: AsyncIOMotorClient = Depends(get_database), doc_id: str):
     """
     Delete a single compound_word document using the compound_word as a lookup.
     """
-    compound_word_by_compound_word = await compound_word_service.get_compound_word_doc_by_compound_word(
-        db, compound_word
-    )
+    compound_word_by_compound_word = await compound_word_service.get_compound_word_doc_by_id(db, doc_id)
 
     if not compound_word_by_compound_word:
-        raise HTTPException(
-            status_code=HTTP_404_NOT_FOUND, detail=f"Compound word '{compound_word}' not found."
-        )
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=f"Compound word '{doc_id}' not found.")
 
-    await compound_word_service.delete_compound_word_doc_by_compound_word(db, compound_word)
+    await compound_word_service.delete_compound_word_doc_by_id(db, doc_id)
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-@router.put("/{compound_word}", response_model=models.CompoundWordInDb)
+@router.put("/{doc_id}", response_model=models.CompoundWordInDb)
 async def update_compound_word(
     *,
     db: AsyncIOMotorClient = Depends(get_database),
-    compound_word: str,
+    doc_id: str,
     compoundWordUpdate: models.CompoundWordUpdate,
 ):
     """
     Update a single compound_word document using the compound_word as a lookup. Partial update is supported.
     """
-    compound_word_by_compound_word = await compound_word_service.get_compound_word_doc_by_compound_word(
-        db, compound_word
-    )
+    compound_word = await compound_word_service.get_compound_word_doc_by_id(db, doc_id)
 
-    if not compound_word_by_compound_word:
-        raise HTTPException(
-            status_code=HTTP_404_NOT_FOUND, detail=f"Compound word '{compound_word}' not found."
-        )
+    if not compound_word:
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=f"Compound word '{doc_id}' not found.")
 
-    updated_compound_word = await compound_word_service.update_compound_word_doc_by_compound_word(
-        db, compound_word, compoundWordUpdate
+    updated_compound_word = await compound_word_service.update_compound_word_doc_by_id(
+        db, doc_id, compoundWordUpdate
     )
 
     return updated_compound_word
