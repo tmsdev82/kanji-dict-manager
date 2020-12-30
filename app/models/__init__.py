@@ -5,3 +5,10 @@ from app.models.compound_word import (
     CompoundWordUpdate,
     CompoundWordFilterParams,
 )
+
+from app.models.example_sentence import (
+    ExampleSentenceCreate,
+    ExampleSentenceFilterParams,
+    ExampleSentenceInDb,
+    ExampleSentenceUpdate,
+)

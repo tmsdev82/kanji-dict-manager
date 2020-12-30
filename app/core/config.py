@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     MONGO_DB: Optional[str] = "common_kanji"
     MONGO_KANJI_COLLECTION = "kanji"
     MONGO_COMPOUND_WORD_COLLECTION = "kanji_compound_word"
+    MONGO_EXAMPLE_SENTENCE_COLLECTION = "kanji_example_sentence"
 
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
