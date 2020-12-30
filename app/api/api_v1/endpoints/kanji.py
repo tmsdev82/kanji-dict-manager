@@ -30,12 +30,12 @@ async def get_kanji_items(db: AsyncIOMotorClient = Depends(get_database)):
     return kanjis
 
 
-@router.get("/{kanji}", response_model=models.KanjiInDb)
-async def get_kanji(*, db: AsyncIOMotorClient = Depends(get_database), kanji: str) -> Any:
+@router.get("/{doc_id}", response_model=models.KanjiInDb)
+async def get_kanji_by_doc_id(*, db: AsyncIOMotorClient = Depends(get_database), doc_id: str) -> Any:
     """
     Get a single kanji document using the kanji as a lookup.
     """
-    kanji_result = await kanji_service.get_kanji_doc_by_kanji(db, kanji)
+    kanji_result = await kanji_service.get_kanji_doc_by_id(db, doc_id)
 
     if not kanji_result:
         raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail="Kanji not found")
@@ -61,33 +61,33 @@ async def create_new_kanji(*, kanji: models.KanjiCreate, db: AsyncIOMotorClient 
     return db_kanji
 
 
-@router.delete("/{kanji}", status_code=HTTP_204_NO_CONTENT)
-async def delete_kanji(*, db: AsyncIOMotorClient = Depends(get_database), kanji: str):
+@router.delete("/{doc_id}", status_code=HTTP_204_NO_CONTENT)
+async def delete_kanji(*, db: AsyncIOMotorClient = Depends(get_database), doc_id: str):
     """
-    Delete a single kanji document using the kanji as a lookup.
+    Delete a single kanji document using the doc_id as a lookup.
     """
-    kanji_by_kanji = await kanji_service.get_kanji_doc_by_kanji(db, kanji)
+    kanji_by_kanji = await kanji_service.get_kanji_doc_by_id(db, doc_id)
 
     if not kanji_by_kanji:
         logger.info("Kanji not found.")
-        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=f"Kanji '{kanji}' not found.")
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=f"Kanji '{doc_id}' not found.")
 
-    await kanji_service.delete_kanji_doc_by_kanji(db, kanji)
+    await kanji_service.delete_kanji_doc_by_id(db, doc_id)
     return Response(status_code=HTTP_204_NO_CONTENT)
 
 
-@router.put("/{kanji}", response_model=models.KanjiInDb)
+@router.put("/{doc_id}", response_model=models.KanjiInDb)
 async def update_kanji(
-    *, db: AsyncIOMotorClient = Depends(get_database), kanji: str, kanjiUpdate: KanjiUpdate
+    *, db: AsyncIOMotorClient = Depends(get_database), doc_id: str, kanjiUpdate: KanjiUpdate
 ):
     """
-    Update a single kanji document using the kanji as a lookup. Partial update is supported.
+    Update a single kanji document using the doc_id as a lookup. Partial update is supported.
     """
-    kanji_by_kanji = await kanji_service.get_kanji_doc_by_kanji(db, kanji)
+    kanji_by_kanji = await kanji_service.get_kanji_doc_by_id(db, doc_id)
 
     if not kanji_by_kanji:
-        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=f"Kanji '{kanji}' not found.")
+        raise HTTPException(status_code=HTTP_404_NOT_FOUND, detail=f"Kanji '{doc_id}' not found.")
 
-    updated_kanji = await kanji_service.update_kanji_doc_by_kanji(db, kanji, kanjiUpdate)
+    updated_kanji = await kanji_service.update_kanji_doc_by_id(db, doc_id, kanjiUpdate)
 
     return updated_kanji
