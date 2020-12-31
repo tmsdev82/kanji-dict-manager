@@ -83,7 +83,8 @@ async def get_compound_word_doc_by_id(connection: AsyncIOMotorClient, doc_id: st
 
 
 async def get_compound_words(
-    connection: AsyncIOMotorClient, filters: models.CompoundWordFilterParams
+    connection: AsyncIOMotorClient,
+    filters: models.CompoundWordFilterParams = models.CompoundWordFilterParams(),
 ) -> List[models.CompoundWordInDb]:
     """
     Get all compound_word documents in the database.
