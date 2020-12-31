@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 from app.api.api_v1.api import api_router
@@ -15,6 +16,15 @@ def setup():
     """
     Configure the FastAPI app, router, eventhandlers, etc.
     """
+    if settings.BACKEND_CORS_ORIGINS:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+
     app.add_event_handler("startup", connect_to_mongo)
     app.add_event_handler("shutdown", close_mongo_connection)
 
