@@ -29,7 +29,6 @@ class KanjiBase(RWModel):
 class KanjiCreate(KanjiBase):
     jouyou_number: int
     kanji: str
-    kanji_section: KanjiSectionEnum
     onyomi: List[str]
     kunyomi: List[str]
     meaning: List[str]

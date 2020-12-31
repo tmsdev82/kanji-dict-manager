@@ -87,7 +87,8 @@ async def get_example_sentence_doc_by_id(
 
 
 async def get_example_sentences(
-    connection: AsyncIOMotorClient, filters: models.ExampleSentenceFilterParams
+    connection: AsyncIOMotorClient,
+    filters: models.ExampleSentenceFilterParams = models.ExampleSentenceFilterParams(),
 ) -> List[models.ExampleSentenceInDb]:
     """
     Get all example_sentence documents in the database.

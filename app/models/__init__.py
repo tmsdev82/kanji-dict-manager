@@ -12,3 +12,5 @@ from app.models.example_sentence import (
     ExampleSentenceInDb,
     ExampleSentenceUpdate,
 )
+
+from app.models.kanji_dict import KanjiDict

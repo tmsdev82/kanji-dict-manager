@@ -1,14 +1,14 @@
 from typing import Optional, List
 
-from app.models.compound_word import CompoundWordBase
-from app.models.example_sentence import ExampleSentenceBase
-from app.models.kanji import KanjiBase
+from app.models.compound_word import CompoundWordInDb
+from app.models.example_sentence import ExampleSentenceInDb
+from app.models.kanji import KanjiInDb
 from app.models.rwmodel import RWModel, ObjectIdStr
 
 
-class KanjiDictBase(KanjiBase):
-    compound_words: Optional[List[CompoundWordBase]] = []
-    example_sentences: Optional[List[ExampleSentenceBase]] = []
+class KanjiDictBase(KanjiInDb):
+    compound_words: Optional[List[CompoundWordInDb]] = []
+    example_sentences: Optional[List[ExampleSentenceInDb]] = []
 
 
 class KanjiDict(KanjiDictBase):
