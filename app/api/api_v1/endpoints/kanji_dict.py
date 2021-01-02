@@ -1,7 +1,7 @@
 from app.models.kanji import KanjiUpdate
 from typing import Optional, List, Any
 
-from fastapi import APIRouter, Body, Depends, Path, Query, HTTPException, Response
+from fastapi import APIRouter, Body, Depends, Path, Query, HTTPException, Response, File, UploadFile, Form
 from loguru import logger
 from starlette.status import (
     HTTP_201_CREATED,
@@ -42,3 +42,13 @@ async def import_kanji_dicts(
     await kanji_dict_service.import_kanji_dict_list(db, kanjiDictList)
 
     return {"message": "Completed successful bulk import.", "status": "OK"}
+
+
+@router.post("/upload/")
+async def upload_kanji_dict_file(
+    file: UploadFile = File(...), db: AsyncIOMotorClient = Depends(get_database)
+):
+    logger.debug(f"filename: {file.filename}")
+    result = await kanji_dict_service.process_file_upload(db, file)
+
+    return {"message": "Completed successful file import.", "status": "OK"}
