@@ -1,8 +1,11 @@
+import shutil
+from fastapi.datastructures import UploadFile
 from app.models import example_sentence, kanji
 import json
 from typing import List
 from datetime import datetime
 from bson import ObjectId
+from pathlib import Path
 
 
 from loguru import logger
@@ -156,3 +159,20 @@ async def get_kanji_dicts(connection: AsyncIOMotorClient) -> List[models.KanjiDi
         kanji_dicts.append(kanji_dict)
 
     return kanji_dicts
+
+
+async def process_file_upload(connection, upload_file: UploadFile) -> None:
+    logger.debug(">>>>")
+    try:
+
+        kanji_json = json.load(upload_file.file)
+        logger.info(f"Kanji dict file contains {len(kanji_json)} kanji.")
+
+        kanji_dict_list = []
+        for kanji_dict in kanji_json:
+            kanji_dict_converted = models.KanjiDict(**kanji_dict)
+            kanji_dict_list.append(kanji_dict_converted)
+
+        result = await import_kanji_dict_list(connection, kanji_dict_list)
+    finally:
+        upload_file.file.close()
