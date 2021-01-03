@@ -24,6 +24,8 @@ async def get_compound_word_items(
     db: AsyncIOMotorClient = Depends(get_database),
     related_kanji: Optional[List[str]] = Query(None),
     ratings: Optional[List[int]] = Query(None),
+    offset: Optional[int] = Query(0),
+    limit: Optional[int] = Query(100),
 ):
     """
     Get a list of all compound_words in the database.
@@ -34,6 +36,9 @@ async def get_compound_word_items(
         filters.related_kanji = related_kanji
     if ratings:
         filters.ratings = ratings
+
+    filters.offset = offset
+    filters.limit = limit
 
     compound_words = await compound_word_service.get_compound_words(db, filters)
 

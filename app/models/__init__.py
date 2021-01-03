@@ -1,4 +1,4 @@
-from app.models.kanji import KanjiCreate, KanjiInDb, KanjiUpdate
+from app.models.kanji import KanjiCreate, KanjiInDb, KanjiUpdate, KanjiFilterParams
 from app.models.compound_word import (
     CompoundWordCreate,
     CompoundWordInDb,

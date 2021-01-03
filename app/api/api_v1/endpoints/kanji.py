@@ -20,12 +20,17 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[models.KanjiInDb])
-async def get_kanji_items(db: AsyncIOMotorClient = Depends(get_database)):
+async def get_kanji_items(
+    *,
+    db: AsyncIOMotorClient = Depends(get_database),
+    offset: Optional[int] = Query(0),
+    limit: Optional[int] = Query(100),
+):
     """
     Get a list of all kanji in the database.
     """
     logger.debug(">>>>")
-    kanjis = await kanji_service.get_all_kanji(db)
+    kanjis = await kanji_service.get_kanji(db, offset=offset, limit=limit)
 
     return kanjis
 
