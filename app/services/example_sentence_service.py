@@ -102,6 +102,8 @@ async def get_example_sentences(
     query = {}
     if filters.related_kanji:
         query["related_kanji"] = {"$in": filters.related_kanji}
+    if filters.ratings:
+        query["rating"] = {"$in": filters.ratings}
 
     if query:
         results = connection[settings.MONGO_DB][settings.MONGO_EXAMPLE_SENTENCE_COLLECTION].find(query)
@@ -178,6 +180,9 @@ async def update_example_sentence_doc_by_id(
 
     if exampleSentenceUpdate.related_kanji:
         db_example_sentence.related_kanji = exampleSentenceUpdate.related_kanji
+
+    if exampleSentenceUpdate.rating:
+        db_example_sentence.rating = exampleSentenceUpdate.rating
 
     updated_doc = db_example_sentence.dict()
     updated_doc["doc_id"] = str(updated_doc["doc_id"])
