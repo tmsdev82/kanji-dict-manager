@@ -77,7 +77,7 @@ async def get_kanji_doc_by_kanji(connection: AsyncIOMotorClient, kanji: str) -> 
         return kanji_in_db
 
 
-async def get_all_kanji(connection: AsyncIOMotorClient) -> List[models.KanjiInDb]:
+async def get_kanji(connection: AsyncIOMotorClient, offset, limit) -> List[models.KanjiInDb]:
     """
     Get all kanji documents in the database.
 
@@ -85,7 +85,17 @@ async def get_all_kanji(connection: AsyncIOMotorClient) -> List[models.KanjiInDb
     :return: Returns all kanji documents as a list.
     """
     logger.debug(">>>>")
-    results = connection[settings.MONGO_DB][settings.MONGO_KANJI_COLLECTION].find()
+    if limit is None:
+        limit = 0
+    if offset is None:
+        offset = 0
+
+    if offset or limit:
+        results = connection[settings.MONGO_DB][settings.MONGO_KANJI_COLLECTION].find(
+            limit=limit, skip=offset
+        )
+    else:
+        results = connection[settings.MONGO_DB][settings.MONGO_KANJI_COLLECTION].find()
 
     kanji_results = []
     async for result in results:

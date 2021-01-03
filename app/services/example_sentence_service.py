@@ -106,9 +106,13 @@ async def get_example_sentences(
         query["rating"] = {"$in": filters.ratings}
 
     if query:
-        results = connection[settings.MONGO_DB][settings.MONGO_EXAMPLE_SENTENCE_COLLECTION].find(query)
+        results = connection[settings.MONGO_DB][settings.MONGO_EXAMPLE_SENTENCE_COLLECTION].find(
+            query, skip=filters.offset, limit=filters.limit
+        )
     else:
-        results = connection[settings.MONGO_DB][settings.MONGO_EXAMPLE_SENTENCE_COLLECTION].find()
+        results = connection[settings.MONGO_DB][settings.MONGO_EXAMPLE_SENTENCE_COLLECTION].find(
+            skip=filters.offset, limit=filters.limit
+        )
 
     example_sentence_results = []
     async for result in results:

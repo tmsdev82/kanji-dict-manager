@@ -102,9 +102,13 @@ async def get_compound_words(
         query["rating"] = {"$in": filters.ratings}
 
     if query:
-        results = connection[settings.MONGO_DB][settings.MONGO_COMPOUND_WORD_COLLECTION].find(query)
+        results = connection[settings.MONGO_DB][settings.MONGO_COMPOUND_WORD_COLLECTION].find(
+            query, skip=filters.offset, limit=filters.limit
+        )
     else:
-        results = connection[settings.MONGO_DB][settings.MONGO_COMPOUND_WORD_COLLECTION].find()
+        results = connection[settings.MONGO_DB][settings.MONGO_COMPOUND_WORD_COLLECTION].find(
+            skip=filters.offset, limit=filters.limit
+        )
 
     compound_word_results = []
     async for result in results:

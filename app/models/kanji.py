@@ -10,6 +10,11 @@ class KanjiSectionEnum(str, Enum):
     i = "い"
 
 
+class KanjiFilterParams(RWModel):
+    offset: int = 0
+    limit: int = 100
+
+
 class KanjiBase(RWModel):
     # Number in the list of common use kanji
     jouyou_number: Optional[int] = None

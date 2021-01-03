@@ -24,6 +24,8 @@ async def get_example_sentence_items(
     db: AsyncIOMotorClient = Depends(get_database),
     related_kanji: Optional[List[str]] = Query(None),
     ratings: Optional[List[int]] = Query(None),
+    offset: Optional[int] = Query(0),
+    limit: Optional[int] = Query(100),
 ):
     """
     Get a list of all example_sentences in the database.
@@ -35,6 +37,9 @@ async def get_example_sentence_items(
 
     if ratings:
         filters.ratings = ratings
+
+    filters.offset = offset
+    filters.limit = limit
 
     example_sentences = await example_sentence_service.get_example_sentences(db, filters)
 

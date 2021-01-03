@@ -6,6 +6,8 @@ from app.models.rwmodel import RWModel, ObjectIdStr
 class ExampleSentenceFilterParams(RWModel):
     related_kanji: List[str] = []
     ratings: List[int] = []
+    offset: int = 0
+    limit: int = 0
 
 
 class ExampleSentenceBase(RWModel):
