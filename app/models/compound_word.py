@@ -5,12 +5,14 @@ from app.models.rwmodel import RWModel, ObjectIdStr
 
 class CompoundWordFilterParams(RWModel):
     related_kanji: List[str] = []
+    ratings: List[int] = []
 
 
 class CompoundWordBase(RWModel):
     compound_word: Optional[str] = None
     hiragana: Optional[str] = None
     translation: Optional[str] = None
+    rating: Optional[int] = 0
     related_kanji: Optional[List[str]]
 
 

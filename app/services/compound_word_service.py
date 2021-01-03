@@ -98,6 +98,8 @@ async def get_compound_words(
     query = {}
     if filters.related_kanji:
         query["related_kanji"] = {"$in": filters.related_kanji}
+    if filters.ratings:
+        query["rating"] = {"$in": filters.ratings}
 
     if query:
         results = connection[settings.MONGO_DB][settings.MONGO_COMPOUND_WORD_COLLECTION].find(query)
@@ -174,6 +176,9 @@ async def update_compound_word_doc_by_id(
 
     if compoundWordUpdate.related_kanji:
         db_compound_word.related_kanji = compoundWordUpdate.related_kanji
+
+    if compoundWordUpdate.rating:
+        db_compound_word.rating = compoundWordUpdate.rating
 
     updated_doc = db_compound_word.dict()
     updated_doc["doc_id"] = str(updated_doc["doc_id"])

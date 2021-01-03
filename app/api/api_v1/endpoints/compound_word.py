@@ -20,7 +20,10 @@ router = APIRouter()
 
 @router.get("/", response_model=List[models.CompoundWordInDb])
 async def get_compound_word_items(
-    *, db: AsyncIOMotorClient = Depends(get_database), related_kanji: Optional[List[str]] = Query(None)
+    *,
+    db: AsyncIOMotorClient = Depends(get_database),
+    related_kanji: Optional[List[str]] = Query(None),
+    ratings: Optional[List[int]] = Query(None),
 ):
     """
     Get a list of all compound_words in the database.
@@ -29,6 +32,8 @@ async def get_compound_word_items(
     filters = models.CompoundWordFilterParams()
     if related_kanji:
         filters.related_kanji = related_kanji
+    if ratings:
+        filters.ratings = ratings
 
     compound_words = await compound_word_service.get_compound_words(db, filters)
 

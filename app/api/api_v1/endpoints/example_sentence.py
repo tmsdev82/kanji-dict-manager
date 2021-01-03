@@ -20,7 +20,10 @@ router = APIRouter()
 
 @router.get("/", response_model=List[models.ExampleSentenceInDb])
 async def get_example_sentence_items(
-    *, db: AsyncIOMotorClient = Depends(get_database), related_kanji: Optional[List[str]] = Query(None)
+    *,
+    db: AsyncIOMotorClient = Depends(get_database),
+    related_kanji: Optional[List[str]] = Query(None),
+    ratings: Optional[List[int]] = Query(None),
 ):
     """
     Get a list of all example_sentences in the database.
@@ -29,6 +32,9 @@ async def get_example_sentence_items(
     filters = models.ExampleSentenceFilterParams()
     if related_kanji:
         filters.related_kanji = related_kanji
+
+    if ratings:
+        filters.ratings = ratings
 
     example_sentences = await example_sentence_service.get_example_sentences(db, filters)
 
